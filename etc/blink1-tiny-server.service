@@ -1,0 +1,10 @@
+[Unit]
+Description=blink(1) tiny http server
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/default/blink1-tiny-server
+ExecStart=/usr/bin/blink1-tiny-server -p ${BLINK1_TINY_SERVER_PORT}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+*.env
+*.md
+*.tar.gz
+.dockerignore
+.env
+.env
+.git/
+.gitignore
+Dockerfile
+LICENSE
+target/*
