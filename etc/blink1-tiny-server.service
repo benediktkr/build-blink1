@@ -3,9 +3,9 @@ Description=blink(1) tiny http server
 After=network.target
 
 [Service]
-User=nobody
-Group=nogroup
 EnvironmentFile=/etc/default/blink1-tiny-server
+User=${BLINK1_TINY_SERVER_USER}
+Group=${BLINK1_TINY_SERVER_GROUP}
 ExecStart=/usr/local/bin/blink1-tiny-server -p ${BLINK1_TINY_SERVER_PORT}
 
 [Install]
