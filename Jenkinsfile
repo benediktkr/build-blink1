@@ -28,6 +28,11 @@ pipeline {
             }
         }
 
+        stage ('env') {
+            steps {
+                sh "env"
+            }
+        }
         stage ('build') {
             steps {
                 sh "docker build --pull -t blink1-tool-builder ."
@@ -39,7 +44,7 @@ pipeline {
                     sh "docker container create --name blink1-tool_builder blink1-tool-builder"
                     sh "docker container cp blink1-tool_builder:/usr/local/dist/target/ ."
                     dir("target/") {
-                        def debfile = sh script: "ls *.deb", returnStdout: true
+                        def debfile = sh(script: "ls *.deb", returnStdout: true).trim()
                         currentBuild.description = "${debfile}"
                     }
                 }
