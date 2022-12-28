@@ -23,6 +23,7 @@ RUN set -x && \
     make blink1-tiny-server
 
 COPY --chown=nobody:nogroup etc/ /usr/local/dist/etc/
+COPY after-install.sh /usr/local/dist/
 
 COPY make_deb.sh /usr/local/bin/make_deb.sh
 RUN set -x && \

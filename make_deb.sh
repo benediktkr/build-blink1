@@ -15,17 +15,18 @@ set -e
     set -x
     fpm \
         -t deb \
-        --deb-config etc/blink1-tiny-server \
         --deb-default etc/blink1-tiny-server \
         --deb-systemd etc/blink1-tiny-server.service \
         --deb-systemd-auto-start \
         --deb-systemd-enable \
         --deb-systemd-restart-after-upgrade \
         --deb-auto-config-files \
+        --config-files /etc/udev/rules.d/21-blink1.rules \
+        --after-install after-install.sh \
         -n blink1 \
         -v ${VERSION} \
         -a $(dpkg --print-architecture) \
-        -s dir bin/=/usr/local/bin/
+        -s dir bin/=/usr/local/bin/ etc/21-blink1.rules=/etc/udev/rules.d/21-blink1.rules
 
     mv -v *.deb target/
 )
