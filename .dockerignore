@@ -3,8 +3,7 @@
 *.tar.gz
 .dockerignore
 .env
-.env
-.git/
+.git
 .gitignore
 Dockerfile
 LICENSE
