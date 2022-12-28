@@ -38,7 +38,7 @@ pipeline {
                 script {
                     sh "docker container create --name blink1-tool_builder blink1-tool-builder"
                     sh "docker container cp blink1-tool_builder:/usr/local/dist/target/ ."
-                    def debfile = sh "ls target/*.deb", returnStdout: true
+                    def debfile = sh script: "ls target/*.deb", returnStdout: true
                     currentBuild.description = "${debfile}"
                 }
             }
