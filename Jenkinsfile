@@ -13,7 +13,7 @@ pipeline {
 
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: 'refs/heads/master']],
+                    branches: [[name: 'refs/heads/main']],
                     extensions: [[
                         $class: 'RelativeTargetDirectory',
                         relativeTargetDir: 'blink1-tool'
