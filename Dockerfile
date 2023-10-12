@@ -11,8 +11,8 @@ FROM base AS builder
 RUN set -x && \
     apt-get install -y ruby ruby-dev rubygems tree git libudev-dev pkg-config build-essential && \
     gem install --no-document fpm && \
-    mkdir -p /usr/local/src/blink1-tool /usr/local/dist && \
-    chown -R nobody:nogroup /usr/local/src/ /usr/local/dist
+    mkdir -p /usr/local/src/blink1-tool /usr/local/src/dist /usr/local/src/deb /usr/local/src/deb/bin && \
+    chown -R nobody:nogroup /usr/local/src/
 
 COPY --chown=nobody:nogroup blink1-tool /usr/local/src/blink1-tool
 
@@ -22,9 +22,9 @@ RUN set -x && \
     make && \
     make blink1-tiny-server
 
-COPY --chown=nobody:nogroup etc/ /usr/local/dist/etc/
-COPY after-install.sh /usr/local/dist/
+COPY --chown=nobody:nogroup etc/ /usr/local/src/deb/etc/
+COPY --chown=nobody:nogroup deb/ /usr/local/src/deb/
 
-COPY make_deb.sh /usr/local/bin/make_deb.sh
+WORKDIR /usr/local/src
 RUN set -x && \
-    /usr/local/bin/make_deb.sh
+    /usr/local/src/deb/make_deb.sh

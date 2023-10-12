@@ -7,4 +7,6 @@
 .gitignore
 Dockerfile
 LICENSE
-target/*
+dist/*
+# thre Makefile pulls in submodules fo hidapi and others
+#blink1-tool/.git

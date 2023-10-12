@@ -25,14 +25,11 @@ pipeline {
                         url: 'https://git.sudo.is/mirrors/blink1-tool.git'
                     ]],
                 ])
-            }
-        }
 
-        stage ('env') {
-            steps {
                 sh "env"
             }
         }
+
         stage ('build') {
             steps {
                 sh "docker build --pull -t blink1-tool-builder ."
@@ -42,11 +39,10 @@ pipeline {
             steps {
                 script {
                     sh "docker container create --name blink1-tool_builder blink1-tool-builder"
-                    sh "docker container cp blink1-tool_builder:/usr/local/dist/target/ ."
-                    dir("target/") {
-                        def debfile = sh(script: "ls *.deb", returnStdout: true).trim()
-                        currentBuild.description = "${debfile}"
-                    }
+                    sh "docker container cp blink1-tool_builder:/usr/local/src/dist/ ."
+                    env.VERSION = readFile('dist/blink1_version.txt').trim()
+                    env.DEBFILE = readFile('dist/debfile.txt').trim()
+                    currentBuild.description = env.VERSION
                 }
             }
         }
@@ -55,17 +51,13 @@ pipeline {
     post {
         success {
             script {
-                def debfile = currentBuild.description
-                archiveArtifacts(
-                    artifacts: 'target/' + debfile,
-                    fingerprint: true
-                )
+                archiveArtifacts(artifacts: "dist/${env.DEBFILE}", fingerprint: true)
 
                 // def timer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
-                // if (!fileExists("${env.JENKINS_HOME}/artifacts/${debfile}")) {
+                // if (!fileExists("${env.JENKINS_HOME}/artifacts/${env.DEBFILE}}")) {
                 // }
 
-                sh "cp target/${debfile} ${env.JENKINS_HOME}/artifacts"
+                sh "cp dist/${env.DEBFILE} ${env.JENKINS_HOME}/artifacts"
 
                 build(
                     job: "/utils/apt",
@@ -80,16 +72,14 @@ pipeline {
             }
         }
         cleanup {
+            sh "ls -lah"
             cleanWs(
                 deleteDirs: true,
                 //patterns: [[pattern: 'blink1-tool-web', type: 'EXCLUDE']],
                 disableDeferredWipeout: true,
                 notFailBuild: true
             )
-            script {
-                sh "docker container rm blink1-tool_builder || true"
-                sh "ls -lah"
-            }
+            sh "docker container rm blink1-tool_builder || true"
         }
     }
 }

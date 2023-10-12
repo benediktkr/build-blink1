@@ -1,14 +1,76 @@
 # build-blink1
 
 [![Build Status](https://jenkins.sudo.is/buildStatus/icon?job=ben%2Fbuild-blink1%2Fmain&style=flat-square)](https://jenkins.sudo.is/job/ben/job/build-blink1/)
-[![git](https://git.sudo.is/shieldsio/static/v1?label=git&message=git.sudo.is/ben/build-blink1&logo=gitea&style=flat-square&logoWidth=20&color=darkgreen)](https://git.sudo.is/ben/build-blink1)
-[![BSD-3-Clause-No-Military-License](https://git.sudo.is/shieldsio/badge/license-BSD-blue?style=flat-square)](LICENSE)
+[![BSD-2-Clause](https://www.sudo.is/readmes/license-BSD-blue.svg)](LICENSE)
+![version](https://jenkins.sudo.is/buildStatus/icon?job=ben%2Fbuild-blink1%2Fmain&style=flat-square&status=${description}&subject=version&build=lastStable&color=blue)
+[![git](https://www.sudo.is/readmes/git.sudo.is-ben-blink1.svg)](https://git.sudo.is/ben/build-blink1)
+[![github](https://www.sudo.is/readmes/github-benediktkr.svg)](https://github.com/benediktkr/build-blink1)
+[![matrix](https://www.sudo.is/readmes/matrix-ben-sudo.is.svg)](https://matrix.to/#/@ben:sudo.is)
 
-custom build of [`blink1-tool`](https://github.com/todbot/blink1-tool/) for the [blink(1)](https://blink1.thingm.com/).
+Custom small and simple build of [`blink1-tool`](https://github.com/todbot/blink1-tool/) for the [blink(1)](https://blink1.thingm.com/).
 
-## usage
+## Installation
 
+```shell
+sudo curl https://apt.sudo.is/KEY.gpg -o /etc/apt/keyrings/apt.sudo.is.gpg
+echo "deb [signed-by=/etc/apt/keyrings/apt.sudo.is.gpg] https://apt.sudo.is /" | sudo tee -a /etc/apt/sources.list.d/apt.sudo.is.list
+sudo apt update
+sudo apt install blink1
 ```
+
+## Usage
+
+Configure which port it listens to in `/etc/default/blink1-tiny-server`:
+
+```shell
+$ cat /etc/default/blink1-tiny-server
+BLINK1_TINY_SERVER_PORT=8011
+```
+
+
+Example:
+
+```shell
+$ curl -sX GET http://localhost:8011/blink1/fadeToRGB?rgb=ff0ff
+```
+
+Nginx config:
+
+```nginx
+    location /blink1/ {
+        # For html page:
+        #rewrite '^/blink1(/.*)$' $1 break;
+        #sub_filter_once off;
+        #sub_filter '"/' '"./';
+        add_header Content-Type 'application/json' always;
+        proxy_http_version 1.1;
+        proxy_pass http://localhost:8011;
+
+    }
+```
+Standard systemd service:
+
+```shell
+$ sudo systemctl status blink1-tiny-server.service | cat
+● blink1-tiny-server.service - blink(1) tiny http server
+     Loaded: loaded (/lib/systemd/system/blink1-tiny-server.service; enabled; vendor preset: enabled)
+     Active: active (running) since Tue 2023-10-03 23:48:31 CEST; 1 week 1 day ago
+   Main PID: 1644193 (blink1-tiny-ser)
+      Tasks: 1 (limit: 8999)
+     Memory: 24.0M
+        CPU: 54.354s
+     CGroup: /system.slice/blink1-tiny-server.service
+             └─1644193 /usr/local/bin/blink1-tiny-server -p 8011
+
+Oct 03 23:48:31 mathom.s21.sudo.is systemd[1]: Started blink(1) tiny http server.
+Oct 03 23:48:31 mathom.s21.sudo.is blink1-tiny-server[1644193]: blink1-tiny-server version v2.3.0-linux-x86_64: running on http://localhost:8011/ (html help enabeld)
+```
+
+
+
+The `--help` output from `blink1-tiny-server` is informative:
+
+```shell
 $ blink1-tiny-server --help
 Usage:
   blink1-tiny-server [options]
@@ -39,7 +101,7 @@ Supported URIs:
   /blink1/servertickle/off -- Disable servertickle
 
 Supported query arguments: (not all urls support all args)
-  'rgb'    -- hex RGB color code. e.g. 'rgb=FF9900' or 'rgb=%23FF9900
+  'rgb'    -- hex RGB color code. e.g. 'rgb=FF9900' or 'rgb=%23FF9900'
   'time'   -- time in seconds. e.g. 'time=0.5'
   'bright' -- brightness, 1-255, 0=full e.g. half-bright 'bright=127'
   'ledn'   -- which LED to set. 0=all/1=top/2=bot, e.g. 'ledn=0'
