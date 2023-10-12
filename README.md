@@ -18,7 +18,11 @@ sudo apt update
 sudo apt install blink1
 ```
 
-## Usage
+## ![](hass.svg) Home Assistant
+
+For adding the blink(1) as a `light` entity in Home Assistant, see [`home-assistant/blink1.yaml`](home-assistant/blink1.yaml).
+
+## Config
 
 Configure which port it listens to in `/etc/default/blink1-tiny-server`:
 
@@ -27,27 +31,6 @@ $ cat /etc/default/blink1-tiny-server
 BLINK1_TINY_SERVER_PORT=8011
 ```
 
-
-Example:
-
-```shell
-$ curl -sX GET http://localhost:8011/blink1/fadeToRGB?rgb=ff0ff
-```
-
-Nginx config:
-
-```nginx
-    location /blink1/ {
-        # For html page:
-        #rewrite '^/blink1(/.*)$' $1 break;
-        #sub_filter_once off;
-        #sub_filter '"/' '"./';
-        add_header Content-Type 'application/json' always;
-        proxy_http_version 1.1;
-        proxy_pass http://localhost:8011;
-
-    }
-```
 Standard systemd service:
 
 ```shell
@@ -66,7 +49,44 @@ Oct 03 23:48:31 mathom.s21.sudo.is systemd[1]: Started blink(1) tiny http server
 Oct 03 23:48:31 mathom.s21.sudo.is blink1-tiny-server[1644193]: blink1-tiny-server version v2.3.0-linux-x86_64: running on http://localhost:8011/ (html help enabeld)
 ```
 
+## HTTP API
 
+Very simply HTTP api:
+
+```shell
+$ curl -sX GET http://localhost:8011/blink1/fadeToRGB?rgb=ff0ff
+$ curl -sX GET https://blink1-host.example.com/blink1/ | jq .
+{
+  "version": "v2.3.0-linux-x86_64",
+  "uri": "/blink1/",
+  "millis": 0,
+  "time": 0,
+  "rgb": "#ff0ff",
+  "ledn": 0,
+  "bright": 0,
+  "count": 0,
+  "status": "blink1 status"
+}
+```
+
+## nginx
+
+Nginx config:
+
+```nginx
+    location /blink1/ {
+        # For html page:
+        #rewrite '^/blink1(/.*)$' $1 break;
+        #sub_filter_once off;
+        #sub_filter '"/' '"./';
+        add_header Content-Type 'application/json' always;
+        proxy_http_version 1.1;
+        proxy_pass http://localhost:8011;
+
+    }
+```
+
+## `--help`
 
 The `--help` output from `blink1-tiny-server` is informative:
 
