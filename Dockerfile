@@ -1,3 +1,4 @@
+# ubuntu:latest is the latest LTS
 FROM ubuntu:latest as base
 MAINTAINER Ben K <ben@sudo.is>
 
