@@ -22,9 +22,10 @@ RUN set -x && \
     make && \
     make blink1-tiny-server
 
-COPY --chown=nobody:nogroup etc/ /usr/local/src/deb/etc/
+COPY --chown=nobody:nogroup bin/ /usr/local/src/bin/
+COPY --chown=nobody:nogroup etc/ /usr/local/src/etc/
 COPY --chown=nobody:nogroup deb/ /usr/local/src/deb/
 
 WORKDIR /usr/local/src
 RUN set -x && \
-    /usr/local/src/deb/make_deb.sh
+    /usr/local/src/bin/make_deb.sh

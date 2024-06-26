@@ -18,14 +18,14 @@ set -x
 fpm \
     -t deb \
     -d libudev-dev \
-    --deb-systemd deb/etc/blink1-tiny-server.service \
+    --deb-systemd etc/blink1-tiny-server.service \
     --deb-systemd-auto-start \
     --deb-systemd-enable \
     --deb-systemd-restart-after-upgrade \
     --deb-auto-config-files \
     --deb-user nobody \
     --deb-group nobody \
-    --deb-default deb/etc/blink1-tiny-server \
+    --deb-default etc/blink1-tiny-server \
     --config-files /etc/udev/rules.d/21-blink1.rules \
     --after-install deb/after-install.sh \
     --maintainer "sudo.is <pkg@sudo.is>" \
@@ -37,7 +37,7 @@ fpm \
     -n ${NAME} \
     -v ${VERSION} \
     -a ${ARCH} \
-    -s dir deb/bin/=/usr/local/bin/ deb/etc/21-blink1.rules=/etc/udev/rules.d/21-blink1.rules
+    -s dir deb/bin/=/usr/local/bin/ etc/21-blink1.rules=/etc/udev/rules.d/21-blink1.rules
 
 echo $VERSION > /usr/local/src/dist/blink1_version.txt
 echo ${NAME}_${VERSION}_${ARCH}.deb > /usr/local/src/dist/debfile.txt
