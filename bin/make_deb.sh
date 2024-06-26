@@ -29,7 +29,7 @@ fpm \
     --config-files /etc/udev/rules.d/21-blink1.rules \
     --after-install deb/after-install.sh \
     --maintainer "sudo.is <pkg@sudo.is>" \
-    --vendor "blink1-tool (https://github.com/todbot/blink1-tool), package by sudo.is" \
+    --vendor "blink1-tool (https://github.com/todbot/blink1-tool), package by sudo.is (https://git.sudo.is/ben/build/blink1)" \
     --url "https://git.sudo.is/ben/build-blink1" \
     --license "MIT" \
     --description "Simple builds of blink1-tool and blink1-tiny-server" \
