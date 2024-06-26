@@ -10,5 +10,6 @@
 Custom small and simple build of [`blink1-tool`](https://github.com/todbot/blink1-tool/) for the [blink(1)](https://blink1.thingm.com/).
 
 - [Documentation](https://www.sudo.is/docs/builds/blink1)
-- [`home-assistant/blink1.yaml`](home-assistant/blink1.yaml): Home Assistant configuration
+- [Home Assistant configuration](home-assistant/blink1.yaml)
+- [Included `udev` rule](etc/21-blink1.rules)
 
