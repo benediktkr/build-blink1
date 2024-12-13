@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label "hcloud-docker-x86"
+    }
     options {
         timestamps()
         ansiColor("xterm")
@@ -43,6 +45,7 @@ pipeline {
                     env.VERSION = readFile('dist/blink1_version.txt').trim()
                     env.DEBFILE = readFile('dist/debfile.txt').trim()
                     currentBuild.description = env.VERSION
+                    stash(name: "agent", includes: "dist/")
                 }
             }
         }
@@ -51,6 +54,7 @@ pipeline {
     post {
         success {
             script {
+                unstash(name: "agent")
                 archiveArtifacts(artifacts: "dist/${env.DEBFILE}", fingerprint: true)
 
                 // def timer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
