@@ -1,5 +1,5 @@
 # ubuntu:latest is the latest LTS
-FROM ubuntu:latest as base
+FROM ubuntu:latest AS base
 MAINTAINER Ben K <ben@sudo.is>
 
 ENV DEBIAN_FRONTEND=noninteractive

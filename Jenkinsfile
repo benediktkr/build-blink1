@@ -9,10 +9,14 @@ pipeline {
         skipDefaultCheckout()
     }
     stages {
-        stage('checkout') {
-            steps{
+        stage('Clone') {
+            steps {
+                sh "env"
+
+                echo "Clone repo to '${env.WORKSPACE}'.."
                 checkout scm
 
+                echo "Clone 'blink1-tool.repo' to '${env.WORKSPACE}/blink1-tool'..."
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: 'refs/heads/main']],
@@ -27,42 +31,43 @@ pipeline {
                         url: 'https://git.sudo.is/mirrors/blink1-tool.git'
                     ]],
                 ])
-
-                sh "env"
             }
         }
-
-        stage ('build') {
+        stage('Build') {
             steps {
                 sh "docker build --pull -t blink1-tool-builder ."
+                sh "docker container create --name blink1-tool_builder blink1-tool-builder"
+                sh "docker container cp blink1-tool_builder:/usr/local/src/dist/ ."
             }
-        }
-        stage('deb') {
-            steps {
-                script {
-                    sh "docker container create --name blink1-tool_builder blink1-tool-builder"
-                    sh "docker container cp blink1-tool_builder:/usr/local/src/dist/ ."
-                    env.VERSION = readFile('dist/blink1_version.txt').trim()
-                    env.DEBFILE = readFile('dist/debfile.txt').trim()
-                    currentBuild.description = env.VERSION
+            post {
+                always {
+                    script {
+                        env.VERSION = readFile('dist/blink1_version.txt').trim()
+                        env.DEBFILE = readFile('dist/debfile.txt').trim()
+                        currentBuild.description = env.VERSION
+                    }
+                }
+                success {
                     stash(name: "agent", includes: "dist/")
+                }
+                cleanup {
+                    sh "docker container rm blink1-tool_builder"
+                    cleanWs(deleteDirs: true, notFailBuild: true)
                 }
             }
         }
-    }
-
-    post {
-        success {
-            script {
+        stage('Upload') {
+            agent {
+                // its also possible to wrap steps in :
+                //
+                // steps { node('built-in') { ... } }
+                label "built-in"
+            }
+            steps {
                 unstash(name: "agent")
-                archiveArtifacts(artifacts: "dist/${env.DEBFILE}", fingerprint: true)
 
-                // def timer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
-                // if (!fileExists("${env.JENKINS_HOME}/artifacts/${env.DEBFILE}}")) {
-                // }
-
-                sh "cp dist/${env.DEBFILE} ${env.JENKINS_HOME}/artifacts"
-
+                sh "cp -v dist/${env.DEBFILE} ${env.JENKINS_HOME}/artifacts/${env.DEBFILE}"
+                sh "du -sh ${env.JENKINS_HOME}/artifacts/${env.DEBFILE}"
                 build(
                     job: "/utils/apt",
                     wait: true,
@@ -72,18 +77,16 @@ pipeline {
                         name: 'filename',
                         value: "${debfile}"
                     ]])
-
             }
-        }
-        cleanup {
-            sh "ls -lah"
-            cleanWs(
-                deleteDirs: true,
-                //patterns: [[pattern: 'blink1-tool-web', type: 'EXCLUDE']],
-                disableDeferredWipeout: true,
-                notFailBuild: true
-            )
-            sh "docker container rm blink1-tool_builder || true"
+            post {
+                success {
+                    archiveArtifacts(artifacts: "dist/${env.DEBFILE}", fingerprint: true)
+                }
+                cleanup {
+                    sh "rm -v ${env.JENKINS_HOME}/artifacts/${env.DEBFILE}"
+                    cleanWs(deleteDirs: true, notFailBuild: true)
+                }
+            }
         }
     }
 }
