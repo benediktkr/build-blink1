@@ -49,10 +49,10 @@ pipeline {
                 }
                 success {
                     stash(name: "agent", includes: "dist/")
+                    cleanWs(deleteDirs: true, notFailBuild: true)
                 }
                 cleanup {
                     sh "docker container rm blink1-tool_builder"
-                    cleanWs(deleteDirs: true, notFailBuild: true)
                 }
             }
         }
@@ -84,6 +84,8 @@ pipeline {
                 }
                 cleanup {
                     sh "rm -v ${env.JENKINS_HOME}/artifacts/${env.DEBFILE}"
+                    // The 'built-in' node only has the 'dist/' dir in it's workspace,
+                    // since it was in the stash.
                     cleanWs(deleteDirs: true, notFailBuild: true)
                 }
             }
